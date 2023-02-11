@@ -1199,8 +1199,7 @@ def _run_tests(  # pylint: disable=too-many-arguments
     destinations_by_name: Dict[str, FakeDestination],
     ignore_exception_types: List[Type[Exception]],
     test_results_container: TestResultsContainer,
-) -> DefaultDict[str, list]:
-    
+) -> DefaultDict[str, list]:  
     status_passed = 'passed'
     status_errored = 'errored'
     for unit_test in tests:
@@ -1247,16 +1246,16 @@ def _run_tests(  # pylint: disable=too-many-arguments
         test_result = TestCaseEvaluator(spec, result).interpret(
             ignore_exception_types=ignore_exception_types
         )
-
+        
+        result_info = (detection, test_result, failed_tests)
         if test_results_container:
             test_result_str = status_passed if test_result.passed else status_errored
             stored_test_results = getattr(test_results_container, test_result_str)
             if test_result.detectionId not in stored_test_results:
               stored_test_results[test_result.detectionId] = []
-            stored_test_results[test_result.detectionId].append((detection, test_result, failed_tests))
+            stored_test_results[test_result.detectionId].append(result_info)
         else:
-            _print_test_result(detection, test_result, failed_tests)
-
+            _print_test_result(*result_info)
 
     return failed_tests
 
