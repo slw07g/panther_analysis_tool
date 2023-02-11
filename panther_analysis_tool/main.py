@@ -766,7 +766,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
     log_type_to_data_model, invalid_data_models = setup_data_models(specs[DATAMODEL])
     invalid_specs.extend(invalid_data_models)
 
-    test_results_container = None if not bool(args.sort_test_results) else TestResultsContainer(
+    all_test_results = None if not bool(args.sort_test_results) else TestResultsContainer(
         passed = {},
         errored = {}
     )
@@ -778,7 +778,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
         args.skip_disabled_tests,
         destinations_by_name=destinations_by_name,
         ignore_exception_types=ignore_exception_types,
-        test_results_container=test_results_container,
+        all_test_results=all_test_results,
     )
     invalid_specs.extend(invalid_detection)
 
@@ -789,9 +789,9 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
     # cleanup tmp global dir
     cleanup_global_helpers(specs[GLOBAL])
 
-    if test_results_container and (test_results_container.passed or test_results_container.errored):
+    if all_test_results and (all_test_results.passed or all_test_results.errored):
         for outcome in ['passed', 'errored']:
-            for ruleId, test_result_packages in sorted(getattr(test_results_container, outcome).items()):
+            for ruleId, test_result_packages in sorted(getattr(all_test_results, outcome).items()):
                 print(ruleId)
                 for test_result_package in test_result_packages:
                     _print_test_result(*test_result_package)
@@ -897,7 +897,7 @@ def setup_run_tests(  # pylint: disable=too-many-locals,too-many-arguments
     skip_disabled_tests: bool,
     destinations_by_name: Dict[str, FakeDestination],
     ignore_exception_types: List[Type[Exception]],
-    test_results_container: TestResultsContainer=None,
+    all_test_results: TestResultsContainer=None,
 ) -> Tuple[DefaultDict[str, List[Any]], List[Any]]:
     invalid_specs = []
     failed_tests: DefaultDict[str, list] = defaultdict(list)
@@ -941,7 +941,7 @@ def setup_run_tests(  # pylint: disable=too-many-locals,too-many-arguments
             minimum_tests,
             destinations_by_name,
             ignore_exception_types,
-            test_results_container,
+            all_test_results,
         )
         print("")
     return failed_tests, invalid_specs
@@ -1155,7 +1155,7 @@ def run_tests(  # pylint: disable=too-many-arguments
     minimum_tests: int,
     destinations_by_name: Dict[str, FakeDestination],
     ignore_exception_types: List[Type[Exception]],
-    test_results_container: TestResultsContainer,
+    all_test_results: TestResultsContainer,
 ) -> DefaultDict[str, list]:
     if len(analysis.get("Tests", [])) < minimum_tests:
         failed_tests[detection.detection_id].append(
@@ -1176,7 +1176,7 @@ def run_tests(  # pylint: disable=too-many-arguments
         failed_tests,
         destinations_by_name,
         ignore_exception_types,
-        test_results_container
+        all_test_results
 
     )
 
@@ -1198,7 +1198,7 @@ def _run_tests(  # pylint: disable=too-many-arguments
     failed_tests: DefaultDict[str, list],
     destinations_by_name: Dict[str, FakeDestination],
     ignore_exception_types: List[Type[Exception]],
-    test_results_container: TestResultsContainer,
+    all_test_results: TestResultsContainer,
 ) -> DefaultDict[str, list]:  
     status_passed = 'passed'
     status_errored = 'errored'
@@ -1248,9 +1248,9 @@ def _run_tests(  # pylint: disable=too-many-arguments
         )
         
         result_info = (detection, test_result, failed_tests)
-        if test_results_container:
+        if all_test_results:
             test_result_str = status_passed if test_result.passed else status_errored
-            stored_test_results = getattr(test_results_container, test_result_str)
+            stored_test_results = getattr(all_test_results, test_result_str)
             if test_result.detectionId not in stored_test_results:
               stored_test_results[test_result.detectionId] = []
             stored_test_results[test_result.detectionId].append(result_info)
