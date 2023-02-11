@@ -117,11 +117,6 @@ class TestResult:  # pylint: disable=R0902
     trigger_alert: Optional[bool]
     functions: TestResultsPerFunction
 
-@dataclass
-class TestResultsContainer:
-    """A container for all test results"""
-    passed: dict
-    errored: dict
 
 @dataclass
 class TestExpectations:

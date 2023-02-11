@@ -59,7 +59,6 @@ from panther_core.testing import (
     TestCaseEvaluator,
     TestExpectations,
     TestResult,
-    TestResultsContainer,
     TestSpecification,
 )
 from ruamel.yaml import YAML, SafeConstructor, constructor
@@ -138,6 +137,12 @@ class AnalysisContainsDuplicatesException(Exception):
         )
         super().__init__(self.message)
 
+
+@dataclass
+class TestResultsContainer:
+    """A container for all test results"""
+    passed: dict
+    errored: dict
 
 def load_module(filename: str) -> Tuple[Any, Any]:
     """Loads the analysis function module from a file.
@@ -763,7 +768,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
 
     test_results_container = TestResultsContainer(
         passed = {},
-        failed = {}
+        errored = {}
     )
     # then, import rules and policies; run tests
     failed_tests, invalid_detection = setup_run_tests(
