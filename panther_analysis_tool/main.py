@@ -1176,8 +1176,7 @@ def run_tests(  # pylint: disable=too-many-arguments
         failed_tests,
         destinations_by_name,
         ignore_exception_types,
-        all_test_results
-
+        all_test_results,
     )
 
     if minimum_tests > 1 and not (
