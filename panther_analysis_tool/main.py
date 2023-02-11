@@ -1255,7 +1255,7 @@ def _run_tests(  # pylint: disable=too-many-arguments
               stored_test_results[test_result.detectionId] = []
             stored_test_results[test_result.detectionId].append((detection, test_result, failed_tests))
         else:
-            _print_test_result((detection, test_result, failed_tests))
+            _print_test_result(detection, test_result, failed_tests)
 
 
     return failed_tests
