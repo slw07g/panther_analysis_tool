@@ -1273,6 +1273,7 @@ def _print_test_result(
         outcome = status_pass
     else:
         outcome = status_fail
+    print(test_result.detectionId)
     # print overall status for this test
     print("\t[{}] {}".format(outcome, test_result.name))
 
