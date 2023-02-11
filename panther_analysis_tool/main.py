@@ -773,7 +773,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
         args.skip_disabled_tests,
         destinations_by_name=destinations_by_name,
         ignore_exception_types=ignore_exception_types,
-        test_results_container
+        test_results_container=test_results_container,
     )
     invalid_specs.extend(invalid_detection)
 
@@ -886,7 +886,7 @@ def setup_run_tests(  # pylint: disable=too-many-locals,too-many-arguments
     skip_disabled_tests: bool,
     destinations_by_name: Dict[str, FakeDestination],
     ignore_exception_types: List[Type[Exception]],
-    test_results_container: TestResultsContainer,
+    test_results_container: TestResultsContainer=None,
 ) -> Tuple[DefaultDict[str, List[Any]], List[Any]]:
     invalid_specs = []
     failed_tests: DefaultDict[str, list] = defaultdict(list)
