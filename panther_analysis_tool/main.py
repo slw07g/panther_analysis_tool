@@ -791,8 +791,8 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
 
     if test_results_container and (test_results_container.passed or test_results_container.errored):
         for outcome in ['passed', 'errored']:
-            for _, test_result_packages in getattr(test_results_container, outcome).items():
-                for _, test_result_package in sorted(test_result_packages.items()):
+            for _, test_result_packages in sorted(getattr(test_results_container, outcome).items()):
+                for test_result_package in test_result_packages:
                     _print_test_result(*test_result_package)
     print_summary(args.path, len(specs[DETECTION]), failed_tests, invalid_specs)
 
