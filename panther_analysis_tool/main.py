@@ -766,7 +766,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
     log_type_to_data_model, invalid_data_models = setup_data_models(specs[DATAMODEL])
     invalid_specs.extend(invalid_data_models)
 
-    test_results_container = None if not args.sort_test_results else TestResultsContainer(
+    test_results_container = None if not bool(args.sort_test_results) else TestResultsContainer(
         passed = {},
         errored = {}
     )
@@ -1254,11 +1254,8 @@ def _run_tests(  # pylint: disable=too-many-arguments
             if test_result.detectionId not in stored_test_results:
               stored_test_results[test_result.detectionId] = []
             stored_test_results[test_result.detectionId].append((detection, test_result, failed_tests))
-
-    if not test_results_container:
-        for test_result_packages in results.items():
-            for _, test_result_package in sorted(test_result_packages.items()):
-                _print_test_result(*test_result_package)
+        else:
+            _print_test_result((detection, test_result, failed_tests))
 
 
     return failed_tests
