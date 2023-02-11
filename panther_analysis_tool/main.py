@@ -1177,6 +1177,10 @@ def _run_tests(  # pylint: disable=too-many-arguments
     destinations_by_name: Dict[str, FakeDestination],
     ignore_exception_types: List[Type[Exception]],
 ) -> DefaultDict[str, list]:
+    results = {
+        "passed": {},
+        "errored": {},
+    }
     for unit_test in tests:
         try:
             entry = unit_test.get("Resource") or unit_test["Log"]
@@ -1222,7 +1226,13 @@ def _run_tests(  # pylint: disable=too-many-arguments
             ignore_exception_types=ignore_exception_types
         )
 
-        _print_test_result(detection, test_result, failed_tests)
+        test_result_str = "passed" if test_result.passed else "errored"
+        results[test_result_str][test_result.detectionId] = (detection, test_result, failed_tests)
+        
+
+    for _, test_result_packages in results.items():
+        for _, test_result_package in test_result_packages.items():
+            _print_test_result(*test_result_package)
 
     return failed_tests
 
