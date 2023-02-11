@@ -1203,10 +1203,6 @@ def _run_tests(  # pylint: disable=too-many-arguments
     
     status_passed = 'passed'
     status_errored = 'errored'
-    results = {
-        status_passed: {},
-        status_errored: {},
-    }
     for unit_test in tests:
         try:
             entry = unit_test.get("Resource") or unit_test["Log"]
@@ -1257,7 +1253,7 @@ def _run_tests(  # pylint: disable=too-many-arguments
             stored_test_results = getattr(test_results_container, test_result_str)
             if test_result.detectionId not in stored_test_results:
               stored_test_results[test_result.detectionId] = []
-            stored_test_results.append((detection, test_result, failed_tests))
+            stored_test_results[test_result.detectionId].append((detection, test_result, failed_tests))
 
     if not test_results_container:
         for test_result_packages in results.items():
