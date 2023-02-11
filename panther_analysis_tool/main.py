@@ -766,7 +766,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
     log_type_to_data_model, invalid_data_models = setup_data_models(specs[DATAMODEL])
     invalid_specs.extend(invalid_data_models)
 
-    test_results_container = TestResultsContainer(
+    test_results_container = None if not args.sort_test_results else TestResultsContainer(
         passed = {},
         errored = {}
     )
@@ -1200,9 +1200,12 @@ def _run_tests(  # pylint: disable=too-many-arguments
     ignore_exception_types: List[Type[Exception]],
     test_results_container: TestResultsContainer,
 ) -> DefaultDict[str, list]:
+    
+    status_passed = 'passed'
+    status_errored = 'errored'
     results = {
-        "passed": {},
-        "errored": {},
+        status_passed: {},
+        status_errored: {},
     }
     for unit_test in tests:
         try:
@@ -1249,18 +1252,18 @@ def _run_tests(  # pylint: disable=too-many-arguments
             ignore_exception_types=ignore_exception_types
         )
 
-        test_result_str = "passed" if test_result.passed else "errored"
-        if test_result.detectionId not in results[test_result_str]:
-            results[test_result_str][test_result.detectionId] = []
-        results[test_result_str][test_result.detectionId].append((detection, test_result, failed_tests))
+        if test_results_container:
+            test_result_str = status_passed if test_result.passed else status_errored
+            stored_test_results = getattr(test_results_container, test_result_str)
+            if test_result.detectionId not in stored_test_results:
+              stored_test_results[test_result.detectionId] = []
+            stored_test_results.append((detection, test_result, failed_tests))
 
     if not test_results_container:
         for test_result_packages in results.items():
             for _, test_result_package in sorted(test_result_packages.items()):
                 _print_test_result(*test_result_package)
-    else:
-        test_results_container.passed.update(results.get('passed'))
-        test_results_container.errored.update(results.get('errored'))
+
 
     return failed_tests
 
@@ -1390,6 +1393,13 @@ def setup_parser() -> argparse.ArgumentParser:
         "help": "A destination name that may be returned by the destinations function. "
         "Repeat the argument to define more than one name.",
     }
+    sort_test_results_name = "--sort-test-results"
+    sort_test_results_arg: Dict[str, Any] = {
+        "required": False,
+        "default": False,
+        "type": strtobool,
+        "help": "Print detection test results first by passed/errored outcome, and then by rule ID"
+    }
 
     # -- root parser
 
@@ -1437,6 +1447,7 @@ def setup_parser() -> argparse.ArgumentParser:
     test_parser.add_argument(ignore_files_name, **ignore_files_arg)
     test_parser.add_argument(skip_disabled_test_name, **skip_disabled_test_arg)
     test_parser.add_argument(available_destination_name, **available_destination_arg)
+    test_parser.add_argument(sort_test_results_name, **sort_test_results_arg)
     test_parser.set_defaults(func=test_analysis)
 
     # -- publish command
