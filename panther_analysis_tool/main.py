@@ -793,6 +793,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
         for outcome in ['passed', 'errored']:
             for _, test_result_packages in sorted(getattr(test_results_container, outcome).items()):
                 for test_result_package in test_result_packages:
+                    print(test_result_package[1].detectionId)
                     _print_test_result(*test_result_package)
     print_summary(args.path, len(specs[DETECTION]), failed_tests, invalid_specs)
 
@@ -1273,7 +1274,6 @@ def _print_test_result(
         outcome = status_pass
     else:
         outcome = status_fail
-    print(test_result.detectionId)
     # print overall status for this test
     print("\t[{}] {}".format(outcome, test_result.name))
 
