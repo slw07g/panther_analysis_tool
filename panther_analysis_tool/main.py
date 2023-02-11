@@ -762,7 +762,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
     invalid_specs.extend(invalid_data_models)
 
     test_results_container = TestResultsContainer(
-        passed = {}
+        passed = {},
         failed = {}
     )
     # then, import rules and policies; run tests
