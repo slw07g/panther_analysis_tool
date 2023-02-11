@@ -790,9 +790,8 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
     cleanup_global_helpers(specs[GLOBAL])
 
     if test_results_container and (test_results_container.passed or test_results_container.errored):
-        print(test_results_container.passed)
         for outcome in ['passed', 'errored']:
-            for _, test_result_packages in getattr(test_results_container, outcome):
+            for _, test_result_packages in getattr(test_results_container, outcome).items():
                 for _, test_result_package in sorted(test_result_packages.items()):
                     _print_test_result(*test_result_package)
     print_summary(args.path, len(specs[DETECTION]), failed_tests, invalid_specs)
