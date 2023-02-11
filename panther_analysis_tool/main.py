@@ -1249,7 +1249,9 @@ def _run_tests(  # pylint: disable=too-many-arguments
         )
 
         test_result_str = "passed" if test_result.passed else "errored"
-        results[test_result_str][test_result.detectionId] = (detection, test_result, failed_tests)  
+        if test_result.detectionId not in results[test_result_str]:
+            results[test_result_str][test_result.detectionId] = []
+        results[test_result_str][test_result.detectionId].append(detection, test_result, failed_tests)
 
     if not test_results_container:
         for test_result_packages in results.items():
