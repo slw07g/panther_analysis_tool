@@ -784,6 +784,11 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
     # cleanup tmp global dir
     cleanup_global_helpers(specs[GLOBAL])
 
+    if not test_results_container:
+        for outcome in ['passed', 'errored']
+        for _, test_result_packages in getattr(test_results_container, outcome):
+            for _, test_result_package in sorted(test_result_packages.items()):
+                _print_test_result(*test_result_package)
     print_summary(args.path, len(specs[DETECTION]), failed_tests, invalid_specs)
 
     #  if the classic format was invalid, just exit
@@ -1241,9 +1246,13 @@ def _run_tests(  # pylint: disable=too-many-arguments
         test_result_str = "passed" if test_result.passed else "errored"
         results[test_result_str][test_result.detectionId] = (detection, test_result, failed_tests)  
 
-    for _, test_result_packages in results.items():
-        for _, test_result_package in sorted(test_result_packages.items()):
-            _print_test_result(*test_result_package)
+    if not test_results_container:
+        for test_result_packages in results.items():
+            for _, test_result_package in sorted(test_result_packages.items()):
+                _print_test_result(*test_result_package)
+    else:
+        test_results_container.passed.update(results.get('passed'))
+        test_results_container.errored.update(results.get('errored'))
 
     return failed_tests
 
