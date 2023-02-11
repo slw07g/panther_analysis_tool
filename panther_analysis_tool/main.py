@@ -1231,7 +1231,7 @@ def _run_tests(  # pylint: disable=too-many-arguments
         
 
     for _, test_result_packages in results.items():
-        for _, test_result_package in test_result_packages.items():
+        for _, test_result_package in sorted(test_result_packages.items()):
             _print_test_result(*test_result_package)
 
     return failed_tests
