@@ -59,6 +59,7 @@ from panther_core.testing import (
     TestCaseEvaluator,
     TestExpectations,
     TestResult,
+    TestResultsContainer,
     TestSpecification,
 )
 from ruamel.yaml import YAML, SafeConstructor, constructor
@@ -760,6 +761,10 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
     log_type_to_data_model, invalid_data_models = setup_data_models(specs[DATAMODEL])
     invalid_specs.extend(invalid_data_models)
 
+    test_results_container = TestResultsContainer(
+        passed = {}
+        failed = {}
+    )
     # then, import rules and policies; run tests
     failed_tests, invalid_detection = setup_run_tests(
         log_type_to_data_model,
@@ -768,6 +773,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
         args.skip_disabled_tests,
         destinations_by_name=destinations_by_name,
         ignore_exception_types=ignore_exception_types,
+        test_results_container
     )
     invalid_specs.extend(invalid_detection)
 
@@ -880,6 +886,7 @@ def setup_run_tests(  # pylint: disable=too-many-locals,too-many-arguments
     skip_disabled_tests: bool,
     destinations_by_name: Dict[str, FakeDestination],
     ignore_exception_types: List[Type[Exception]],
+    test_results_container: TestResultsContainer,
 ) -> Tuple[DefaultDict[str, List[Any]], List[Any]]:
     invalid_specs = []
     failed_tests: DefaultDict[str, list] = defaultdict(list)
@@ -923,6 +930,7 @@ def setup_run_tests(  # pylint: disable=too-many-locals,too-many-arguments
             minimum_tests,
             destinations_by_name,
             ignore_exception_types,
+            test_results_container,
         )
         print("")
     return failed_tests, invalid_specs
@@ -1136,6 +1144,7 @@ def run_tests(  # pylint: disable=too-many-arguments
     minimum_tests: int,
     destinations_by_name: Dict[str, FakeDestination],
     ignore_exception_types: List[Type[Exception]],
+    test_results_container: TestResultsContainer,
 ) -> DefaultDict[str, list]:
     if len(analysis.get("Tests", [])) < minimum_tests:
         failed_tests[detection.detection_id].append(
@@ -1156,6 +1165,8 @@ def run_tests(  # pylint: disable=too-many-arguments
         failed_tests,
         destinations_by_name,
         ignore_exception_types,
+        test_results_container
+
     )
 
     if minimum_tests > 1 and not (
@@ -1176,6 +1187,7 @@ def _run_tests(  # pylint: disable=too-many-arguments
     failed_tests: DefaultDict[str, list],
     destinations_by_name: Dict[str, FakeDestination],
     ignore_exception_types: List[Type[Exception]],
+    test_results_container: TestResultsContainer,
 ) -> DefaultDict[str, list]:
     results = {
         "passed": {},
@@ -1227,8 +1239,7 @@ def _run_tests(  # pylint: disable=too-many-arguments
         )
 
         test_result_str = "passed" if test_result.passed else "errored"
-        results[test_result_str][test_result.detectionId] = (detection, test_result, failed_tests)
-        
+        results[test_result_str][test_result.detectionId] = (detection, test_result, failed_tests)  
 
     for _, test_result_packages in results.items():
         for _, test_result_package in sorted(test_result_packages.items()):
