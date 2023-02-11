@@ -789,7 +789,7 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
     # cleanup tmp global dir
     cleanup_global_helpers(specs[GLOBAL])
 
-    if not test_results_container:
+    if test_results_container:
         for outcome in ['passed', 'errored']:
             for _, test_result_packages in getattr(test_results_container, outcome):
                 for _, test_result_package in sorted(test_result_packages.items()):
