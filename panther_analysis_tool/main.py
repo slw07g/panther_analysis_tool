@@ -791,7 +791,8 @@ def test_analysis(args: argparse.Namespace) -> Tuple[int, list]:
 
     if all_test_results and (all_test_results.passed or all_test_results.errored):
         for outcome in ['passed', 'errored']:
-            for detection_id, test_result_packages in sorted(getattr(all_test_results, outcome).items()):
+            sorted_results = sorted(getattr(all_test_results, outcome).items())
+            for detection_id, test_result_packages in sorted_results:
                 print(detection_id)
                 for test_result_package in test_result_packages:
                     _print_test_result(*test_result_package)
